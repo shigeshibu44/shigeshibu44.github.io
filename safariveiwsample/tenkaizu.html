@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width; initial-scale=1.0;">
+<meta http-equiv="Content-Script-Type" content="text/javascript" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<title>シンプルペイント</title>
+<style>
+.pinDetailBox{
+background-color:white;
+text-align:center;
+padding:10px;
+width:150px;
+border-radius:5px;
+border-style:solid;
+border-width:2px;
+border-color:#8e8e8e;
+display:none;
+}
+#lean_overlay {
+    position: fixed;
+    z-index:100;
+    top: 0px;
+    left: 0px;
+    height:100%;
+    width:100%;
+    background: #000;
+    display: none;
+}
+.btn{
+color:#FFF;
+background-color:#208dc3;
+float:left;
+margin:5px;
+padding:0 5px;
+font-size:14px;
+border-radius:2px;
+}
+input.uploader{
+display:none;
+}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="leanModal.min.js"></script>
+<script type="text/javascript">
+$(function(){
+  $('#detailTrigger').leanModal({closeButton:'#pinCancel,#pinCommit'});
+  var can = $('#myCanvas')[0];
+  var pins = [];
+  var draw = function(){
+    var ctx = can.getContext('2d');
+    var bgImg = new Image();
+    bgImg.src = 'tenkaizu.jpg';
+    bgImg.onload = function(){
+      ctx.drawImage(bgImg,0,0);
+      pins.forEach(function(pin){
+        var pinImg = new Image();
+        pinImg.src = 'pin.png';
+        pinImg.onload = function(){
+          ctx.drawImage(pinImg,(can.width * pin.x) - 20,(can.height * pin.y) - 35);
+        }
+      });
+    }
+  }
+  draw();
+  $('#myCanvas').mousedown(function(e){
+    pins.push({x:(e.clientX / can.width),y:(e.clientY / can.height)});
+    draw();
+  });
+  $('#myCanvas').mouseup(function(){
+    $('#detailTrigger').trigger('click');
+  });
+  $('#removeButton,#pinCancel').click(function(){
+    pins.pop();
+    draw();
+  });
+  $('.btn').click(function(){
+    $(this).next('input').click();
+  });
+});
+</script>
+</head>
+<body>
+<canvas id="myCanvas" width="200" height="200">
+HTML5　Canvasに対応したブラウザーを使用してください。
+</canvas>
+<input type="button" value="取消" id="removeButton">
+<a id="detailTrigger" href="#pinDetailBox" style="display:none">dummy</a>
+<div class="pinDetailBox" id="pinDetailBox">
+<div>
+傷の深さ
+<select>
+<option>A1</option>
+<option>A2</option>
+<option>A3</option>
+</select>
+</div>
+<div class="btn" id="pinCancel">
+取消
+</div>
+<div class="btn" id="pinCommit">
+登録
+</div>
+<div class="btn" id="pinPicture">
+写真
+</div>
+<input type="file" class="uploader" value="写真" id="pinPicture" accept="image/*">
+</div>
+</div>
+</body>
+</html>
